@@ -13,21 +13,6 @@ var config = require('../config'),
     fileReader = require('../libs/fileReader');
 
 
-/* Walks from startDate backwards towards oldestDate */
-function walkMatchingLogs(oldestDate, startDate){
-    
-    //discard min,s,ms
-    startDate = startDate || new Date(new Date().setHours(new Date().getHours()-1,0,0,0));
-    oldestDate.setMinutes(0,0,0);
-    
-    if(!oldestDate || !oldestDate instanceof Date || !startDate instanceof Date || oldestDate > startDate){
-        throw 'Error: invalid arguments';
-    }
-    
-    
-    
-
-}
 
 findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
     if(err){
@@ -42,7 +27,9 @@ findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
     var offset = null;
     var mainsDataHourlyAvgs = [];
     //start with current date(-1 hour because current hour is not finished and we do not want to sum an unfinished interval) and unwind it until oldestDate
-    for(var dateIterator = new Date(new Date().setHours(new Date().getHours()-1,0,0,0)); dateIterator >= oldestDate; dateIterator.setHours(dateIterator.getHours() -1)){
+    var toDate = new Date(new Date().setHours(new Date().getHours()-1,0,0,0));
+    for(var dateIterator = oldestDate; dateIterator <= toDate; dateIterator.setHours(dateIterator.getHours() +1)){
+    //for(var dateIterator = new Date(new Date().setHours(new Date().getHours()-1,0,0,0)); dateIterator >= oldestDate; dateIterator.setHours(dateIterator.getHours() -1)){
         console.log("Looking for any data on +1 hour interval since:", dateIterator);
 
         if(filePath !== path.join(powerLogsFolder, dateUtils.dateYYYYMMddString(dateIterator))){
@@ -95,7 +82,7 @@ findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
     }
 
     console.log("Finished processing all data. Reversing results order...");
-    mainsDataHourlyAvgs.reverse();
+    //mainsDataHourlyAvgs.reverse();
     console.log("Appending results to ", downSampledTargetFile);
     var targetFile = fs.createWriteStream(downSampledTargetFile, { flags: 'a'});
     targetFile.on('error', function(err) { console.log(err);});
