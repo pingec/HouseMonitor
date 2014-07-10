@@ -1,0 +1,31 @@
+{
+  "name": "HouseMonitor",
+  "version": "0.1.0",
+  "description": "Monitors temperatures and power consumption, includes a dashboard.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pingec/HouseMonitor.git"
+  },
+  "keywords": [
+    "Temperature monitor",
+    "power consumption",
+    "power monitor",
+    "dashboard",
+    "smart home",
+    "home automation",
+    "emonTX",
+    "OpenEnergyMonitor",
+    "DigiTemp",
+    "1-Wire"
+  ],
+  "author": "Matej Drolc <matej.drolc@pingec.si> (http://pingec.si)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pingec/HouseMonitor/issues"
+  },
+  "homepage": "https://github.com/pingec/HouseMonitor"
+}

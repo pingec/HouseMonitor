@@ -1,0 +1,33 @@
+{
+    // == Enforcing Options ===============================================
+    "plusplus" : false, // Prohibit use of `++` & `--`. //coding style related only
+    "strict" : false, // Require `use strict` pragma in every file.
+    "indent" : 4, // Specify indentation spacing
+    
+    // == Relaxing Options ================================================
+    "es5" : true, // Allow EcmaScript 5 syntax.
+    
+    // == Environments ====================================================
+    "node" : true // Enable globals available when code is running inside of the NodeJS runtime environment.
+    /*
+    "globals": {
+		"process": true,
+        "exports": true,
+		"setTimeout": true,
+		"clearTimeout": true,
+		"setInterval": true,
+		"clearInterval": true,
+		"require": true,
+		"console": true,
+		"module": true,
+		"global": true,
+		"describe": true,
+		"before": true,
+		"it": true,
+		"clientSockets": true,
+        "__filename": true,
+		"__dirname": true
+    
+	}
+    */
+}
