@@ -4,14 +4,13 @@
 
 var SerialPort = require("serialport"),
     EventEmitter = require('events').EventEmitter,
-    MainsData = require('./MainsData');
+    MainsData = require('./MainsData'),
+    config = require('../config');
 
 exports.powerEmitter = new EventEmitter();
 
-
-
-var serialPort = new SerialPort.SerialPort("/dev/ttyACM0", {
-    baudrate: 9600,
+var serialPort = new SerialPort.SerialPort(config.powerMonitor.serialDev, {
+    baudrate: config.powerMonitor.baudRate,
     parser: SerialPort.parsers.readline('\n')
 });
 
@@ -20,8 +19,6 @@ serialPort.on("open", function () {
     serialPort.on('data', function(data) {
         var mains = new MainsData(data);
         exports.powerEmitter.emit("power", mains);
-        //addToSum(mains);
-        //io.sockets.emit('power', mains);
     });
 });
 

@@ -13,6 +13,11 @@ var config = require('../config'),
     fileReader = require('../libs/fileReader');
 
 
+//TODO async
+if(!fs.existsSync(downSampledTargetFile)){
+    fs.openSync(downSampledTargetFile, 'a');    //ensure this file exists
+}
+
 
 findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
     if(err){
@@ -25,10 +30,14 @@ findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
     var filePath = null;
     var array = null;
     var offset = null;
-    var mainsDataHourlyAvgs = [];
     //start with current date(-1 hour because current hour is not finished and we do not want to sum an unfinished interval) and unwind it until oldestDate
     var toDate = new Date(new Date().setHours(new Date().getHours()-1,0,0,0));
-    for(var dateIterator = oldestDate; dateIterator <= toDate; dateIterator.setHours(dateIterator.getHours() +1)){
+    //for(var dateIterator = oldestDate; dateIterator <= toDate; dateIterator.setHours(dateIterator.getHours() +1)){
+    //dateIterator.setHours(dateIterator.getHours() +1) will get stuck at new Date(1396137600000) == Sun Mar 30 2014 01:00:00 GMT+0100 (Central Europe Standard Time) -> wont get incremented
+    //this is because of daylight savings time, apparently the date here goes from Sun Mar 30 2014 01:00:00 to Sun Mar 30 2014 03:00:00, there is no Sun Mar 30 2014 02:00:00 and doing .setHours(2) will return
+    //Sun Mar 30 2014 01:00:00 so the counter will be stuck http://stackoverflow.com/questions/5391177/javascript-sethours1-not-working-for-mar-27-2011-010000-gmt0100
+    
+    for(var dateIterator = oldestDate; dateIterator <= toDate; dateIterator.setTime(dateIterator.getTime() + (60*60*1000))){
     //for(var dateIterator = new Date(new Date().setHours(new Date().getHours()-1,0,0,0)); dateIterator >= oldestDate; dateIterator.setHours(dateIterator.getHours() -1)){
         console.log("Looking for any data on +1 hour interval since:", dateIterator);
 
@@ -73,24 +82,28 @@ findEarliestPowerLog2(powerLogsFolder, function(err, oldestDate){
             console.log("There were matches. (@matchCount matches)".replace("@matchCount", matchCount));
             mainsDataHourly.divide(matchCount);  //average
             mainsDataHourly.toFixed(2); //trim stored values to 2 decimal places
-            mainsDataHourlyAvgs.push(mainsDataHourly);
+            //mainsDataHourlyAvgs.push(mainsDataHourly);
+            var mains2 = mainsDataHourly;
+            fs.appendFileSync(downSampledTargetFile, mains2.timestamp.toISOString() + "," + mains2.serialize() + "\n");
         }
         else{
             console.log("There were ZERO matches (sigh).");
-            mainsDataHourlyAvgs.push(new MainsData(null, new Date(dateIterator)));
+            //mainsDataHourlyAvgs.push(new MainsData(null, new Date(dateIterator)));
+            var mains3 = new MainsData(null, new Date(dateIterator));
+            fs.appendFileSync(downSampledTargetFile, mains3.timestamp.toISOString() + "," + mains3.serialize() + "\n");
         }
     }
 
-    console.log("Finished processing all data. Reversing results order...");
-    //mainsDataHourlyAvgs.reverse();
-    console.log("Appending results to ", downSampledTargetFile);
-    var targetFile = fs.createWriteStream(downSampledTargetFile, { flags: 'a'});
-    targetFile.on('error', function(err) { console.log(err);});
-    mainsDataHourlyAvgs.forEach(function(mains){
-        console.log(mains);
-        targetFile.write(mains.timestamp.toISOString() + "," + mains.serialize() + "\n");
-    });
-    targetFile.end();
+    console.log("Finished processing all data.");
+//    //mainsDataHourlyAvgs.reverse();
+//    console.log("Appending results to ", downSampledTargetFile);
+//    var targetFile = fs.createWriteStream(downSampledTargetFile, { flags: 'a'});
+//    targetFile.on('error', function(err) { console.log(err);});
+//    mainsDataHourlyAvgs.forEach(function(mains){
+//        console.log(mains);
+//        targetFile.write(mains.timestamp.toISOString() + "," + mains.serialize() + "\n");
+//    });
+//    targetFile.end();
 });
 
 //
@@ -187,6 +200,10 @@ function findEarliestPowerLog2(folder, callback){
         var earliestDate = new Date(files[0]);
        
         fileReader.getLastNonEmptyLine(downSampledTargetFile, function(lastLine){
+            if(lastLine === null){
+                return callback(null, earliestDate);
+            }
+            
             var split = lastLine.split(",");
             earliestDate = new Date(split.splice(0,1)[0]);  //remove first element from array and store it
             earliestDate.setHours(earliestDate.getHours()+1);//increment by 1 hour (this timestamp was the last to already have been processed and does not need to be processed again)

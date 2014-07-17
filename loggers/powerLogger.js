@@ -4,10 +4,12 @@
 
 var fs = require('fs'),
     powerEmitter = require('../libs/powerMonitor.js').powerEmitter,
-    MainsData = require('../libs/MainsData');
+    MainsData = require('../libs/MainsData'),
+    dateUtils = require('../libs/dateUtils'),
+    config = require('../config');
 
 // Config
-var logFolder = "/mnt/usbdisk/datastore/power";
+var logFolder = config.powerLogger.logsFolder;
 
 
 powerEmitter.on('power', function(mainsData) {
@@ -96,7 +98,7 @@ function calcAverages(){
 function logMinute(date){
     var averages = calcAverages();
     var data = date.toISOString() + "," + averages.serialize() + "\n";
-    var path = 	logFolder + "/" + dateYYYYMMddString(date);
+    var path = 	logFolder + "/" + dateUtils.dateYYYYMMddString(date);
 
     console.log(path, "+=", data);
     fs.appendFile(path, data, function (err) {
@@ -106,6 +108,6 @@ function logMinute(date){
     });
 }
 
-function dateYYYYMMddString(date){
-    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
-}
+//function dateYYYYMMddString(date){
+//    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
+//}

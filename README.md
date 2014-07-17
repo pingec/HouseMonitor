@@ -56,3 +56,5 @@ The actual web page with charts and other controls
 * add tests
 * add the webpage part
 * move libs/* to node_modules/
+* in tempLogger.js use MEDIAN instead of AVG to mitigate erroneous outliers
+* Add in config filtering thresholds for power and temperatures to use to filter out bad data

@@ -2,6 +2,8 @@
  * Created by pingo on 29.12.2013.
  */
 
+var config = require('../config');
+
 function MainsData(data, timestamp){
 
     this.timestamp = timestamp || new Date();
@@ -192,7 +194,7 @@ MainsData.prototype.validate = function(aPThreshold, rPThreshold, vLowerThreshol
         }
     }
 
-    if(err){
+    if(err && config.debug){
         console.log("WARNING, INCORRECT DATA DETECTED:", err, this.timestamp);
     }
 

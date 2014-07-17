@@ -2,13 +2,13 @@
  * Created by pingo on 28.12.2013.
  */
 
-//region Config
-var logFolder = "/mnt/usbdisk/datastore/temperature";
-//endregion
-
 var tempEmitter = require('../libs/tempMonitor.js').tempEmitter,
     fs = require('fs'),
+    dateUtils = require('../libs/dateUtils'),
+    config = require('../config'),
     latestTemps = {};
+
+var logFolder = config.tempLogger.logsFolder;
 
 tempEmitter.on('temp', function(temps) {
 //    console.log(temps);
@@ -42,7 +42,7 @@ function logPerMinuteTemps(date){
     }
     data += "\n";
     latestTemps = {};
-    var path = 	logFolder + "/" + dateYYYYMMddString(date);
+    var path = 	logFolder + "/" + dateUtils.dateYYYYMMddString(date);
 
     console.log(path, "+=", data);
     fs.appendFile(path, data, function (err) {
@@ -52,6 +52,6 @@ function logPerMinuteTemps(date){
     });
 }
 
-function dateYYYYMMddString(date){
-    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
-}
+//function dateYYYYMMddString(date){
+//    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
+//}
