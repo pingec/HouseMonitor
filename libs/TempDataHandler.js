@@ -16,7 +16,7 @@ function validate(tempData, lowTempThreshold, highTempThreshold){
         }
     }
     if(err){
-        console.log("\nWARNING, INCORRECT DATA DETECTED!:", err, this.timestamp);
+        console.log("\nWARNING, INCORRECT DATA DETECTED!:", err, tempData.timestamp);
     }
     return valid;
 }

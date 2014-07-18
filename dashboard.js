@@ -7,6 +7,7 @@ var app = require('http').createServer(handler),
     io = require('socket.io').listen(app, { log: false }),
     tempEmitter = require('./libs/tempMonitor.js').tempEmitter,
     powerEmitter = require('./libs/powerMonitor.js').powerEmitter,
+    dateUtils = require('./libs/dateUtils'),
     tempCache = {},
     logFolder = "/mnt/usbdisk/datastore/power";
 
@@ -29,7 +30,7 @@ function handler (req, res) {
             });
     }
     if(req.url === "/today"){
-        fs.readFile(logFolder + "/" + dateYYYYMMddString(new Date()),
+        fs.readFile(logFolder + "/" + dateUtils.dateYYYYMMddString(new Date()),
             function (err, data) {
                 if (err) {
                     res.writeHead(500);
@@ -81,9 +82,6 @@ tempEmitter.on('temp', function(temps) {
     });
 });
 
-function dateYYYYMMddString(date){
-    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
-}
 
 
 
