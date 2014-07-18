@@ -22,7 +22,7 @@ function getLastNonEmptyLine(filePath, callback){
     
     fs.stat(filePath, function(err, stat){
         
-        console.log(err, stat);
+        //console.log(err, stat);
         
         fs.open(filePath, 'r', function(err, fd){
             if(err) {throw err;}
