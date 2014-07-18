@@ -42,7 +42,7 @@ config.powerLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DON
 /*
  * Settings for tempLogger.js
  */
-config.tempLogger.logsFolder = "/mnt/usbdisk/datastore/temperature";
+config.tempLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DONT TOUCH\\datastore\\temperature";
 
 /*
  * Settings for powerDownsampler.js

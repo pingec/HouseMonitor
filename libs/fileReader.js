@@ -25,7 +25,13 @@ function getLastNonEmptyLine(filePath, callback){
         //console.log(err, stat);
         
         fs.open(filePath, 'r', function(err, fd){
-            if(err) {throw err;}
+            
+            if(err){
+                if(err.errno === 34){ //file does not exists
+                    return callback(null);                    
+                }
+                throw err;
+            }
             
             var line = '';
             var i = 0;

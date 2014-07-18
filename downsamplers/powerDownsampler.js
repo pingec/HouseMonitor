@@ -10,15 +10,15 @@ var config = require('../config'),
     path = require('path'),
     MainsData = require('../libs/MainsData'),
     dateUtils =  require('../libs/dateUtils'),
-    fileReader = require('../libs/fileReader'),
+    findEarliestLog = require('./common').findEarliestLog,
     Promise = require('bluebird');
 
  Promise.promisifyAll(fs);
 
 
-//main().then(function(){
-//    console.log('ALL DONE!');
-//});
+main().then(function(){
+    console.log('ALL DONE!');
+});
 
 /*
  * Will process power logs according to configuration in config.js
@@ -33,38 +33,11 @@ function main(){
             throw(err);
         }
     }).then(function(){
-        var promise = Promise.promisify(findEarliestPowerLog2);
-        return promise(powerLogsFolder);
+        var promise = Promise.promisify(findEarliestLog);
+        return promise(powerLogsFolder, downSampledTargetFile);
     }).then(function(oldestDate){
         walkLogsSync(oldestDate);
         return Promise.resolve();
-    });
-}
-
-function findEarliestPowerLog2(folder, callback){
-   fs.readdir(folder, function (err, files) {
-        if(err){
-            return callback(err);
-        }
-        if (!files.length){
-            return callback("no files found");
-        }
-        //all files in target folder are supposed to be named by date eg. "2013-11-25"
-        files.sort(dateUtils.dateSort);   //sort earliest to latest
-        var earliestDate = new Date(files[0]);
-       
-        fileReader.getLastNonEmptyLine(downSampledTargetFile, function(lastLine){
-            if(lastLine === null){
-                return callback(null, earliestDate);
-            }
-            
-            var split = lastLine.split(",");
-            earliestDate = new Date(split.splice(0,1)[0]);  //remove first element from array and store it
-            earliestDate.setHours(earliestDate.getHours()+1);//increment by 1 hour (this timestamp was the last to already have been processed and does not need to be processed again)
-            console.log(lastLine, earliestDate);
-            return callback(null, earliestDate);
-        });
-       
     });
 }
 
@@ -115,7 +88,7 @@ function walkLogsSync(oldestDate){
                 var mains = new MainsData(split.join(","), new Date(dateIterator));
 
                 if(dateUtils.equalByDateAndHour(timestamp, dateIterator) && mains.validate(3000, 3000, 200, 300)){
-                    console.log("Found data match!", timestamp);
+                    //console.log("Found data match!", timestamp);
                     matchCount++;
                     if(!mainsDataHourly){
                         mainsDataHourly = mains;
@@ -145,4 +118,4 @@ function walkLogsSync(oldestDate){
 }
 
 
-module.exports.downsample = main;
+module.exports.run = main;

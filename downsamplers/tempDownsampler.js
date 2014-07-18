@@ -6,23 +6,58 @@ var config = require('../config'),
     downSampledTargetFile = config.tempDownsampler.downsamplePath,
     fs = require('fs'),
     path = require('path'),
-    dateUtils =  require('./dateUtils'),
-    TempData = require('./TempData'),
-    TempDataHandler = require('./TempDataHandler'),
-    TempDataAvgs = require('./TempDataAvgs');
+    dateUtils =  require('../libs/dateUtils'),
+    TempData = require('../libs/TempData'),
+    TempDataHandler = require('../libs/TempDataHandler'),
+    TempDataAvgs = require('../libs/TempDataAvgs'),
+    findEarliestLog = require('./common').findEarliestLog,
+    Promise = require('bluebird');
 
-findEarliestTempLog(tempLogsFolder, function(err, oldestDate){
-    if(err)
-        console.log("err happened:", err);
+Promise.promisifyAll(fs);
+
+
+main().then(function(){
+    console.log('ALL DONE!');
+});
+
+/*
+ * Will process power logs according to configuration in config.js
+ */
+function main(){
+    return fs.statAsync(downSampledTargetFile).catch(function(err){
+        if(err.cause.errno === 34){ //file does not exist
+            return fs.openAsync(downSampledTargetFile, 'a');
+        }
+        else{
+            throw(err);
+        }
+    }).then(function(){
+        var promise = Promise.promisify(findEarliestLog);
+        return promise(tempLogsFolder, downSampledTargetFile);
+    }).then(function(oldestDate){
+        walkLogsSync(oldestDate);
+        return Promise.resolve();
+    });
+}
+
+/*
+ * This method is blocking and might take a while (depending on unprocessed logs size)
+ */
+function walkLogsSync(oldestDate){
+
+
     console.log("Determined earliest date of interest:", oldestDate);
     console.log("Looking for data on interval from ", oldestDate, " to ", new Date(new Date().setMinutes(0,0,0)));
-    var filePath = null; //current file that is loaded into array (split by \n)
-    var array = null;    //current file is read into it
+    
+    var filePath = null;
+    var array = null;
     var offset = null;
-    var temperatureDataHourlyAvgs = [];
     //start with current date(-1 hour because current hour is not finished and we do not want to sum an unfinished interval) and unwind it until oldestDate
-    for(var dateIterator = new Date(new Date().setHours(new Date().getHours()-1,0,0,0)); dateIterator >= oldestDate; dateIterator.setHours(dateIterator.getHours() -1)){
+    var toDate = new Date(new Date().setHours(new Date().getHours()-1,0,0,0));
+    
+    for(var dateIterator = oldestDate; dateIterator <= toDate; dateIterator.setTime(dateIterator.getTime() + (60*60*1000))){
         console.log("Looking for any data on +1 hour interval since:", dateIterator);
+
         if(filePath !== path.join(tempLogsFolder, dateUtils.dateYYYYMMddString(dateIterator))){
             filePath = path.join(tempLogsFolder, dateUtils.dateYYYYMMddString(dateIterator));
             console.log("Looking for a new file:", filePath);
@@ -36,76 +71,42 @@ findEarliestTempLog(tempLogsFolder, function(err, oldestDate){
                 array = null;   //flush "cache"
             }
         }
+        
         var temperatureDataHourly = new TempDataAvgs();
+        var matchCount = 0;
         if(array && array.length){
             console.log("Scanning file...");
-            for(var i = 0, matchCount = 0; offset - i > -1 ;i++){   //TODO: offset-i is too loose of a constraint, no need to check whole file all the time, there should be an additional condition that equalByDateAndHour(timestamp, dateIterator) == true
+            for(var i = 0; offset - i > -1 ;i++){   //offset-i is too loose of a constraint, no need to check whole file all the time, there should be an additional condition that equalByDateAndHour(timestamp, dateIterator) == true
                 var line = array[offset-i];
                 var temperatureData = new TempData(line);
-
+                
                 if(dateUtils.equalByDateAndHour(temperatureData.timestamp, dateIterator) && TempDataHandler.validate(temperatureData, -1, 70)){
                     matchCount++;
                     temperatureDataHourly.add(temperatureData);
                 }
             }
+            console.log("Finished scanning file.");
         }
-        console.log("Finished scanning file.");
-        if(temperatureDataHourly.timestamp){    //if timestamp is not set, no temp datapoints have been added, the object is empty
+        var hourlyAvg, hour, temps;
+        if(temperatureDataHourly.timestamp){ //if timestamp is not set, no temp datapoints have been added, the object is empty
             console.log("There were matches. (@matchCount matches)".replace("@matchCount", matchCount));
             temperatureDataHourly.calcAvgs();
-            var hourlyAvg = [new Date(dateIterator), temperatureDataHourly];
-            temperatureDataHourlyAvgs.push(hourlyAvg);
+            hourlyAvg = [new Date(dateIterator), temperatureDataHourly];
+            hour = hourlyAvg[0];
+            temps = hourlyAvg[1];
+            fs.appendFileSync(downSampledTargetFile, hour.toISOString() + "," + temps.serialize() + "\n");
         }
         else{
             console.log("There were ZERO matches (sigh).");
-            var hourlyAvg = [new Date(dateIterator), null];
-            temperatureDataHourlyAvgs.push(hourlyAvg);
+            hourlyAvg = [new Date(dateIterator), null];
+            hour = hourlyAvg[0];
+            temps = hourlyAvg[1];
+            fs.appendFileSync(downSampledTargetFile, hour.toISOString() + "," +  "null" + "\n");
         }
     }
-    console.log("Finished processing all data. Reversing results order...");
-    temperatureDataHourlyAvgs.reverse();
-    console.log("Appending results to ", downSampledTargetFile);
-    temperatureDataHourlyAvgs.forEach(function(hourlyAvg){
-        console.log(hourlyAvg);
-        var hour = hourlyAvg[0];
-        var temps = hourlyAvg[1];
-        fs.appendFileSync(downSampledTargetFile, hour.toISOString() + "," + (temps ? temps.serialize() : "null") + "\n");
-    });
-});
 
-function findEarliestTempLog(folder, callback){
-    fs.readdir(folder, function (err, files) {
-        if(err)
-            callback(err);
-        if(!files.length)
-            callback("no files found");
-        //all files in target folder are supposed to be named by date eg. "2013-11-25"
-        files.sort(dateUtils.dateSort);   //sort earliest to latest
-        var earliestDate = new Date(files[0]);
+    console.log("Finished processing all data.");
 
-        fs.readFile(downSampledTargetFile, function (err, data) {
-            if(err) {
-                console.log(err);
-                callback(null, earliestDate);
-            }
-            else{
-                var lines = data.toString().split('\n');
-                var lastLine = lines.slice(-2)[0];
-
-                var lastLine = "";
-                for(var i = 0; i < lines.length && lastLine === ""; i++)
-                    lastLine = lines[lines.length -1 -i];
-                //it might happen that the read file is empty and lastline is thus empty
-                if(!lastLine.length){
-                    callback(null, earliestDate);
-                    return;
-                }
-                var split = lastLine.split(",");
-                earliestDate = new Date(split.splice(0,1)[0]);  //remove first element from array and store it
-                earliestDate.setHours(earliestDate.getHours()+1);//increment by 1 hour (this timestamp was the last to already have been processed and does not need to be processed again)
-                console.log(lastLine, earliestDate);
-                callback(null, earliestDate);
-            }
-        });
-    });
 }
+
+module.exports.run = main;
