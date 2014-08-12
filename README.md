@@ -52,6 +52,7 @@ The actual web page with charts and other controls
 
 
 ##TODO
+* finish MainsDataAvgs (in a similar fashion as TempDataAvgs) implementation and use it instead inside powerDownsample.js
 * update readme
 * provide screenshots
 * add tests

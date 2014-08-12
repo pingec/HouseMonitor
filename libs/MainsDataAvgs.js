@@ -1,7 +1,7 @@
 var MainsData = require('./MainsData');
 
 
-
+//TODO: complete and use in powerDownsampler.js
 
 function MainsDataAvgs(mainsData){
     //extend MainsData
