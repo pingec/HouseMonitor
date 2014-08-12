@@ -1,8 +1,9 @@
+http://progressed.io/bar/29
+
 HouseMonitor
 ============
 
 Tested on RasperryPi type A running Raspbian.
-
 
 
 Manual configuration is required, please look at config.js for more information.
@@ -11,8 +12,7 @@ Manual configuration is required, please look at config.js for more information.
 When socket.io is installed, copy  ~/HouseMonitor/node_modules/socket.io/node_modules/socket.io-client/socket.io.js to dashboard/public/socket.io.js (FIXME)
 
 
-
-###Power Monitor
+###Power Monitor ![Progress](http://progressed.io/bar/90)   
 describe serial data format and link to arduino .c files
 
     var powerEmitter = require('./libs/powerMonitor.js').powerEmitter;
@@ -25,7 +25,7 @@ Example output:
     
 
 
-###Temperature monitor
+###Temperature monitor ![Progress](http://progressed.io/bar/90)  
 relies on digitemp which should be installed on your system, more info in config.js
 
 
@@ -42,16 +42,17 @@ Example output:
         { addr: '289F50CE040000AC', temp: '39.12' } ]
 
 
-###Log downsampler
+###Log downsampler ![Progress](http://progressed.io/bar/80)  
 this should be a deamon that runs periodically and downsamples temperature and power data so that they can be used in
 charts
 
-###Dashboard
+###Dashboard  ![Progress](http://progressed.io/bar/00)  
 The actual web page with charts and other controls
 
 
 
 ##TODO
+* update readme
 * provide screenshots
 * add tests
 * add the webpage part

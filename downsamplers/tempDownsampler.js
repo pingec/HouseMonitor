@@ -8,7 +8,6 @@ var config = require('../config'),
     path = require('path'),
     dateUtils =  require('../libs/dateUtils'),
     TempData = require('../libs/TempData'),
-    TempDataHandler = require('../libs/TempDataHandler'),
     TempDataAvgs = require('../libs/TempDataAvgs'),
     findEarliestLog = require('./common').findEarliestLog,
     Promise = require('bluebird');
@@ -80,7 +79,7 @@ function walkLogsSync(oldestDate){
                 var line = array[offset-i];
                 var temperatureData = new TempData(line);
                 
-                if(dateUtils.equalByDateAndHour(temperatureData.timestamp, dateIterator) && TempDataHandler.validate(temperatureData, -1, 70)){
+                if(dateUtils.equalByDateAndHour(temperatureData.timestamp, dateIterator) && temperatureData.validate(-1, 70)){
                     matchCount++;
                     temperatureDataHourly.add(temperatureData);
                 }
