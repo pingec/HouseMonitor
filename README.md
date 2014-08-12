@@ -1,4 +1,3 @@
-http://progressed.io/bar/29
 
 HouseMonitor
 ============
