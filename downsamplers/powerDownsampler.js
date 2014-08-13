@@ -11,7 +11,8 @@ var config = require('../config'),
     MainsData = require('../libs/MainsData'),
     dateUtils =  require('../libs/dateUtils'),
     findEarliestLog = require('./common').findEarliestLog,
-    Promise = require('bluebird');
+    Promise = require('bluebird'),
+    MainsDataAvgs = require('../libs/MainsDataAvgs');
 
  Promise.promisifyAll(fs);
 
@@ -91,7 +92,7 @@ function walkLogsSync(oldestDate){
                     //console.log("Found data match!", timestamp);
                     matchCount++;
                     if(!mainsDataHourly){
-                        mainsDataHourly = mains;
+                        mainsDataHourly = new MainsDataAvgs(mains);
                     }
                     else{
                         mainsDataHourly.add(mains);
@@ -102,7 +103,7 @@ function walkLogsSync(oldestDate){
         }
         if(mainsDataHourly !== null){
             console.log("There were matches. (@matchCount matches)".replace("@matchCount", matchCount));
-            mainsDataHourly.divide(matchCount);  //average
+            mainsDataHourly.calcAvgs();
             mainsDataHourly.toFixed(2); //trim stored values to 2 decimal places
             var mains2 = mainsDataHourly;
             fs.appendFileSync(downSampledTargetFile, mains2.timestamp.toISOString() + "," + mains2.serialize() + "\n");

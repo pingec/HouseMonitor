@@ -1,20 +1,33 @@
 var MainsData = require('./MainsData');
 
-
-//TODO: complete and use in powerDownsampler.js
+// Since MainsData constructor requires arguments, inheritance in this case is split in two parts:
+//  - private properties are copied over when they are available (in the MainsDataAvgs constructor) (1)
+//  - properties on the MainsData prototype are added to the MainsDataAvgs prototype chain through a dummy constructor function (2)
 
 function MainsDataAvgs(mainsData){
-    //extend MainsData
+    // 1. copy over all private props of MainsData "instance" - mainsData
     for(var prop in mainsData){
         if(mainsData.hasOwnProperty(prop)){
-            this[prop] = mainsData[prop];
+            this[prop] = mainsData[prop];   //copy over all instance properties
         }
     }
-
     
+    this.count = 1;
+    this.readOnly = false;
 }
 
+// 2. inherit from MainsData.prototype without executing the MainsData constructor (since it requires arguments)
+function tmp(){}
+tmp.prototype = MainsData.prototype;
+MainsDataAvgs.prototype = new tmp();
+MainsDataAvgs.prototype.constructor = MainsDataAvgs;
+
+
 MainsDataAvgs.prototype.add = function(mainsData){
+    if(this.readOnly){
+        throw 'MainsDataAvgs instance cannot modified in readonly mode';
+    }
+    
     this.phase1.realPower += mainsData.phase1.realPower;
     this.phase1.apparentPower += mainsData.phase1.apparentPower;
     this.phase1.Vrms += mainsData.phase1.Vrms;
@@ -30,10 +43,16 @@ MainsDataAvgs.prototype.add = function(mainsData){
     this.phase3.Vrms += mainsData.phase3.Vrms;
     this.phase3.Irms += mainsData.phase3.Irms;
     this.phase3.powerFactor += mainsData.phase3.powerFactor;
+    
+    this.count++;
 };
 
 
 MainsDataAvgs.prototype.divide = function(number){
+    if(this.readOnly){
+        throw 'MainsDataAvgs instance cannot modified in readonly mode';
+    }
+    
     this.phase1.realPower /= number;
     this.phase1.apparentPower /= number;
     this.phase1.Vrms /= number;
@@ -51,7 +70,14 @@ MainsDataAvgs.prototype.divide = function(number){
     this.phase3.powerFactor /= number;
 };
 
+MainsDataAvgs.prototype.calcAvgs = function(){
+    if(this.readOnly){
+        throw 'MainsDataAvgs instance cannot modified in readonly mode';
+    }
+    
+    this.divide(this.count);
+    this.readOnly = true;
+};
 
 
-var mainsAvgs = new MainsDataAvgs(new MainsData("-0.0036,0.0453,0.9252,0.0483,-0.0844,-0.0121,0.1359,1.6861,0.0807,-0.0892,-0.0089,0.0849,1.1422,0.0745,-0.1037", new Date()));
-console.log(mainsAvgs);
+module.exports = MainsDataAvgs;

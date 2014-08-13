@@ -71,45 +71,6 @@ MainsData.prototype.serialize = function(){
         this.phase3.powerFactor;
 };
 
-
-MainsData.prototype.add = function(mainsData){
-    this.phase1.realPower += mainsData.phase1.realPower;
-    this.phase1.apparentPower += mainsData.phase1.apparentPower;
-    this.phase1.Vrms += mainsData.phase1.Vrms;
-    this.phase1.Irms += mainsData.phase1.Irms;
-    this.phase1.powerFactor += mainsData.phase1.powerFactor;
-    this.phase2.realPower += mainsData.phase2.realPower;
-    this.phase2.apparentPower += mainsData.phase2.apparentPower;
-    this.phase2.Vrms += mainsData.phase2.Vrms;
-    this.phase2.Irms += mainsData.phase2.Irms;
-    this.phase2.powerFactor += mainsData.phase2.powerFactor;
-    this.phase3.realPower += mainsData.phase3.realPower;
-    this.phase3.apparentPower += mainsData.phase3.apparentPower;
-    this.phase3.Vrms += mainsData.phase3.Vrms;
-    this.phase3.Irms += mainsData.phase3.Irms;
-    this.phase3.powerFactor += mainsData.phase3.powerFactor;
-};
-
-
-MainsData.prototype.divide = function(number){
-    this.phase1.realPower /= number;
-    this.phase1.apparentPower /= number;
-    this.phase1.Vrms /= number;
-    this.phase1.Irms /= number;
-    this.phase1.powerFactor /= number;
-    this.phase2.realPower /= number;
-    this.phase2.apparentPower /= number;
-    this.phase2.Vrms /= number;
-    this.phase2.Irms /= number;
-    this.phase2.powerFactor /= number;
-    this.phase3.realPower /= number;
-    this.phase3.apparentPower /= number;
-    this.phase3.Vrms /= number;
-    this.phase3.Irms /= number;
-    this.phase3.powerFactor /= number;
-};
-
-
 MainsData.prototype.toFixed = function(n){
     this.phase1.realPower = parseFloat(this.phase1.realPower.toFixed(n));
     this.phase1.apparentPower = parseFloat(this.phase1.apparentPower.toFixed(n));
