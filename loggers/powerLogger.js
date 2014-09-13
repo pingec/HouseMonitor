@@ -55,6 +55,11 @@ function addToSum(mainsData){
 }
 
 function calcAverages(){
+        
+    if(!sums){        
+        return;
+    }
+        
 
 //    var avgs = extend({}, sums); //shallow copy
     var avgs = new MainsData(sums.serialize(), sums.timestamp);
@@ -97,6 +102,11 @@ function calcAverages(){
 
 function logMinute(date){
     var averages = calcAverages();
+    if(!averages){
+        console.log('No power data has been collected in this minute, if this message repeats there might be a problem with acquiring power data.');
+        return;
+    }
+        
     var data = date.toISOString() + "," + averages.serialize() + "\n";
     var path = 	logFolder + "/" + dateUtils.dateYYYYMMddString(date);
 
