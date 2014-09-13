@@ -4,12 +4,15 @@ HouseMonitor
 
 Tested on RasperryPi type A running Raspbian.
 
-
 Manual configuration is required, please look at config.js for more information.
 
+Should be started as sudo eg.
+
+    sudo /opt/node/bin/node main.js
 
 When socket.io is installed, copy  ~/HouseMonitor/node_modules/socket.io/node_modules/socket.io-client/socket.io.js to dashboard/public/socket.io.js (FIXME)
 
+Due to raspberry corrupting file on power loss (even on usb flash storage) I strongly advise setting up an automated log backup process to a remote storage. For example a cron job that commits logs to github.
 
 ###Power Monitor ![Progress](http://progressed.io/bar/90)   
 describe serial data format and link to arduino .c files
