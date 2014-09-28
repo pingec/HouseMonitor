@@ -10,6 +10,22 @@ Should be started as sudo eg.
 
     sudo /opt/node/bin/node main.js
 
+And to make it autostart on bootup you can put this in your /etc/rc.local file (before the exit 0 line):
+
+    screen -dmS housemonitor bash
+    screen -S housemonitor -X stuff "cd /home/pi/HouseMonitor; /opt/node/bin/node /home/pi/HouseMonitor/main.js\n"
+    
+Then you can attach to the screen session with
+
+    sudo screen -r housemonitor
+    
+and detach with 
+
+    CTRL+A+D
+
+
+
+
 When socket.io is installed, copy  ~/HouseMonitor/node_modules/socket.io/node_modules/socket.io-client/socket.io.js to dashboard/public/socket.io.js (FIXME)
 
 Due to raspberry corrupting file on power loss (even on usb flash storage) I strongly advise setting up an automated log backup process to a remote storage. For example a cron job that commits logs to github.
