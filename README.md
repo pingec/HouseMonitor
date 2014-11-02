@@ -60,6 +60,29 @@ Example output:
         { addr: '289F50CE040000AC', temp: '39.12' } ]
 
 
+###Live Data To File Exporter
+ **If this module is used, make sure it is writing to a folder in RAM disk due to relatively high number of writes!**
+
+Outputs last acquired data to certain files in order so that other programs can use it. For example this can be used to display acquired data on a display through lcd4linux.
+
+![Digital photo frame ax206 lcd4linux](screenshots/IMG_20141102_214045_downsized.png) 
+
+1. To enable it, prepare a folder that is mounted to ram. For example create /var/hm and add this line to /etc/fstab : 
+
+    tmpfs           /var/hm         tmpfs   defaults,noatime,mode=1777,size=1M      0    0
+
+2. Configure the LiveDataToFileExporter section in config.js
+
+    config.liveDataToFileExporter.logsFolder = "/var/hm";
+    config.liveDataToFileExporter.temperatureFile = "temps.txt"; 
+    config.liveDataToFileExporter.powerFile = "power.txt";
+    config.liveDataToFileExporter.flowDataFile = "temps.txt";
+    
+3. add the following line to main.js
+
+    require('./loggers/liveDataToFileExporter.js');
+
+
 ###Log downsampler ![Progress](http://progressed.io/bar/80)  
 this should be a deamon that runs periodically and downsamples temperature and power data so that they can be used in
 charts

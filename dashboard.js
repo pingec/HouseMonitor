@@ -5,8 +5,6 @@
 var app = require('http').createServer(handler),
     fs = require('fs'),
     io = require('socket.io').listen(app, { log: false }),
-    tempEmitter = require('./libs/tempMonitor.js').tempEmitter,
-    powerEmitter = require('./libs/powerMonitor.js').powerEmitter,
     dateUtils = require('./libs/dateUtils'),
     tempCache = {},
     logFolder = "/mnt/usbdisk/datastore/power";
@@ -15,6 +13,7 @@ var app = require('http').createServer(handler),
 setInterval(function(){
     tempCache = {}; //purge tempCache every 5 minutes
 }, 5 * 60 * 1000);
+
 
 function handler (req, res) {
 
@@ -69,20 +68,29 @@ io.sockets.on('connection', function (socket) {
     }
 });
 
-powerEmitter.on('power', function(mainsData) {
-    //console.log(mainsData);
-    io.sockets.emit('power', mainsData);
-});
 
-tempEmitter.on('temp', function(temps) {
-//    console.log(temps);
-    io.sockets.emit('temp', temps);
-    temps.forEach(function(sensr) {
-        tempCache[sensr.addr] = sensr.temp;
+
+module.exports = function(EventEmitters) {
+        
+    var tempEmitter = require('./libs/tempMonitor.js')(EventEmitters);
+    var powerEmitter = require('./libs/powerMonitor.js')(EventEmitters);
+    
+    powerEmitter.on('power', function(mainsData) {
+        //console.log(mainsData);
+        io.sockets.emit('power', mainsData);
     });
-});
 
+    tempEmitter.on('temp', function(temps) {
+    //    console.log(temps);
+        io.sockets.emit('temp', temps);
+        temps.forEach(function(sensr) {
+            tempCache[sensr.addr] = sensr.temp;
+        });
+    });
+    
 
+    
+};
 
 
 

@@ -2,31 +2,14 @@
  * Created by pingo on 28.12.2013.
  */
 
-var tempEmitter = require('../libs/tempMonitor.js').tempEmitter,
-    fs = require('fs'),
-    dateUtils = require('../libs/dateUtils'),
-    config = require('../config'),
-    latestTemps = {};
+
+var fs = require('fs'),
+dateUtils = require('../libs/dateUtils'),
+config = require('../config'),
+latestTemps = {};
 
 var logFolder = config.tempLogger.logsFolder;
 
-tempEmitter.on('temp', function(temps) {
-//    console.log(temps);
-
-    for(var i = 0; i < temps.length; i++){
-        var entry = temps[i];   //example structure: { addr: '289547CE0400004E', temp: '41.25' }
-        latestTemps[entry.addr] = latestTemps[entry.addr] || [];
-        latestTemps[entry.addr].push(entry.temp);
-    }
-
-});
-
-setInterval(function(){
-    var date = new Date();
-    if(date.getUTCSeconds() === 59){
-        logPerMinuteTemps(date);
-    }
-}, 1000);
 
 function logPerMinuteTemps(date){
 
@@ -52,6 +35,26 @@ function logPerMinuteTemps(date){
     });
 }
 
-//function dateYYYYMMddString(date){
-//    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
-//}
+module.exports = function(EventEmitters) {
+        
+    var tempEmitter = require('../libs/tempMonitor.js')(EventEmitters);
+    
+    tempEmitter.on('temp', function(temps) {
+    //    console.log(temps);
+
+        for(var i = 0; i < temps.length; i++){
+            var entry = temps[i];   //example structure: { addr: '289547CE0400004E', temp: '41.25' }
+            latestTemps[entry.addr] = latestTemps[entry.addr] || [];
+            latestTemps[entry.addr].push(entry.temp);
+        }
+
+    });
+
+    setInterval(function(){
+        var date = new Date();
+        if(date.getUTCSeconds() === 59){
+            logPerMinuteTemps(date);
+        }
+    }, 1000);
+    
+};

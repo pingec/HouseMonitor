@@ -6,6 +6,7 @@ config.tempLogger = {};
 config.powerDownsampler = {};
 config.tempDownsampler = {};
 config.dashboard = {};
+config.liveDataToFileExporter = {};
 
 /*
  * Set to falsy to disable verbosity 
@@ -15,7 +16,7 @@ config.debug = true;
 /*
  * Settings for powerMonitor.js
  */
-config.powerMonitor.serialDev = "/dev/ttyACM0";
+config.powerMonitor.serialDev = "/dev/cp2102_0";
 config.powerMonitor.baudRate = 9600;
 
 /* 
@@ -37,12 +38,14 @@ config.tempMonitor.digiTempCfgs = [
 /*
  * Settings for powerLogger.js
  */
-//config.powerLogger.logsFolder = "/mnt/usbdisk/datastore/power";
-config.powerLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DONT TOUCH\\datastore\\power";
+config.powerLogger.logsFolder = "/mnt/usbdisk/datastore/power";
+//config.powerLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DONT TOUCH\\datastore\\power";
 /*
  * Settings for tempLogger.js
  */
-config.tempLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DONT TOUCH\\datastore\\temperature";
+config.tempLogger.logsFolder = "/mnt/usbdisk/datastore/temperature";
+//config.tempLogger.logsFolder = "C:\\Users\\pingo\\Desktop\\datastore merged DONT TOUCH\\datastore\\temperature";
+
 
 /*
  * Settings for powerDownsampler.js
@@ -60,5 +63,13 @@ config.tempDownsampler.downsamplePath = "C:\\Users\\pingo\\Desktop\\tempPerHour_
  * Settings for dashboard.js
  */
 config.dashboard.port = 80;
+
+/*
+ * Settings for liveDataToFileExporter.js (make sure to mount logsFolder on a "RAM disk")
+ */
+config.liveDataToFileExporter.logsFolder = "/var/hm";
+config.liveDataToFileExporter.temperatureFile = "temps.txt"; 
+config.liveDataToFileExporter.powerFile = "power.txt";
+config.liveDataToFileExporter.flowDataFile = "temps.txt";
 
 module.exports = config;

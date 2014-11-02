@@ -2,8 +2,7 @@
  * Created by pingo on 29.12.2013.
  */
 
-var fs = require('fs'),
-    powerEmitter = require('../libs/powerMonitor.js').powerEmitter,
+var fs = require('fs'),    
     MainsData = require('../libs/MainsData'),
     dateUtils = require('../libs/dateUtils'),
     config = require('../config');
@@ -12,20 +11,10 @@ var fs = require('fs'),
 var logFolder = config.powerLogger.logsFolder;
 
 
-powerEmitter.on('power', function(mainsData) {
-    //console.log(mainsData);
-    addToSum(mainsData);
-});
-
 var sums;
 var counter = 0;
 
-setInterval(function(){
-    var date = new Date();
-    if(date.getUTCSeconds() === 59){
-        logMinute(date);
-    }
-}, 1000);
+
 
 function addToSum(mainsData){
 
@@ -121,3 +110,24 @@ function logMinute(date){
 //function dateYYYYMMddString(date){
 //    return [date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate()].join("-");
 //}
+
+
+
+
+module.exports = function(EventEmitters) {
+        
+    var powerEmitter = require('../libs/powerMonitor.js')(EventEmitters);
+        
+    powerEmitter.on('power', function(mainsData) {
+        //console.log(mainsData);
+        addToSum(mainsData);
+    });
+    
+    setInterval(function(){
+        var date = new Date();
+        if(date.getUTCSeconds() === 59){
+            logMinute(date);
+        }
+    }, 1000);
+    
+};

@@ -3,17 +3,9 @@
  */
 
 var exec = require('child_process').exec,
-    EventEmitter = require('events').EventEmitter,
-    config = require('../config');
+EventEmitter = require('events').EventEmitter,
+config = require('../config');
 
-exports.tempEmitter = new EventEmitter();
-
-var cmds = [];
-var pendings = [];
-config.tempMonitor.digiTempCfgs.forEach(function(cfgName){
-    cmds.push('digitemp_DS9097 -a -q -c ' + cfgName);
-    pendings.push(false);
-});
 
 //var cmds = [
 //    'digitemp_DS9097 -a -q -c digitemp_pl2303_0',
@@ -39,22 +31,15 @@ config.tempMonitor.digiTempCfgs.forEach(function(cfgName){
 //        }
 //    }
 //}, 100);
-function doQueryTemp(i){
+function doQueryTemp(i, cmds, tempEmitter){
     queryTemp(cmds[i], function(err, temps){
         pendings[i] = false; //clear flag in any case
         if(err === null){
-            exports.tempEmitter.emit('temp', temps, i);
+            tempEmitter.emit('temp', temps, i);
         }
     });
 }
-setInterval(function(){
-    for(var i = 0; i < pendings.length; i++){
-        if(!pendings[i]){
-            pendings[i] = true;
-            doQueryTemp(i);
-        }
-    }
-}, 100);
+
 
 
 function queryTemp(cmd, callback){
@@ -79,3 +64,36 @@ function queryTemp(cmd, callback){
         callback(null, temps);
     });
 }
+
+
+    var cmds = [];
+    var pendings = [];
+
+module.exports = function(EventEmitters) {
+    
+    //never create more than one instance
+    if(EventEmitters.tempEmitter)
+        return EventEmitters.tempEmitter;
+        
+
+
+    EventEmitters.tempEmitter = new EventEmitter(); 
+
+    //var cmds = [];
+    //var pendings = [];
+    config.tempMonitor.digiTempCfgs.forEach(function(cfgName){
+        cmds.push('digitemp_DS9097 -a -q -c ' + cfgName);
+        pendings.push(false);
+    });
+    
+    setInterval(function(){
+        for(var i = 0; i < pendings.length; i++){
+            if(!pendings[i]){
+                pendings[i] = true;
+                doQueryTemp(i, cmds, EventEmitters.tempEmitter);
+            }
+        }
+    }, 100);
+    
+    return EventEmitters.tempEmitter;
+};

@@ -2,6 +2,9 @@
  * Created by pingo on 28.12.2013.
  */
 
-require('./loggers/tempLogger.js');
-require('./loggers/powerLogger.js');
-require('./dashboard.js');
+var EventEmitters = {};    //global holder of EventEmitters
+
+require('./loggers/tempLogger.js')(EventEmitters);
+require('./loggers/powerLogger.js')(EventEmitters);
+require('./dashboard.js')(EventEmitters);
+require('./loggers/liveDataToFileExporter.js')(EventEmitters);
