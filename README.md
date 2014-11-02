@@ -68,6 +68,51 @@ charts
 The actual web page with charts and other controls
 
 
+###Circuit board v0.2
+![HouseMonitor v2.0 board](screenshots/IMG_20141025_225854_downsized.jpg) 
+
+
+####Preogramming the arduino bootloader on the onboard atmega328p (tested with an Arduino UNO):
+
+1. Open "PCB/optiLoader/optiLoader.pde" in Arduino IDE (or get latest from https://github.com/WestfW/OptiLoader) and upload it to the arduino.
+
+2. Disconnect Arduino from USB. Wire it up with atmega328p on board:
+
+![optiLoader](PCB/optiLoader/circuit.jpg)  
+3. Once everything is connected up, re-insert the USB cable. This will reset the Arduino and the burning process will probably begin automatically. Wait until the Tx/Rx LEDs on the Arduino stop flashing before going any further.
+4.To get confirmation that all is well open the Arduino IDE Serial Monitor (at 19,200 Baud). This will auto-reset the Arduino and burn the ATmega328 again. Check logs for details.
+5. Test the AtMega328p by connecting it to a FTDI/cp2102/pl2303 adapter (VCC,GND,TX,RX,DTR). Inside the IDE, choose the correct COM port, board should be set to "Arduino Mini w/ AtMega328" and upload the blink sketch. Green leed should start blinking.
+
+####Voltage sensing calibration
+
+http://openenergymonitor.org/emon/buildingblocks/ct-and-ac-power-adaptor-installation-and-calibration-theory
+
+    emon1.voltage(3, 92.15, 1.7);  // Voltage: input pin, calibration, phase_shift
+
+    voltage constant = alternating mains voltage ÷ alternating voltage at ADC input pin
+
+In practice, just measure mains voltage with a voltmeter and keep adjusting the voltage constant until the calculated output matches the voltmeter.
+
+####Current sensing calibration
+
+###Static usb device names with udev
+Sometimes udev appears to assign names to usb device in an apparently undeterministic way. For example if there are two pl2303 ttl to usb adapters plugged in via a hub, sometimes the first will be named /dev/ttyUSB0 and the second /dev/ttyUSB1 but sometimes it will be the other way around. To avoid such problems, we can assign static names depending on device VID,PID,port on hub etc.
+
+To query for usb information about a device (eg. /dev/ttyUSB0), use:
+
+    udevadm info -a -p $(udevadm info -q path -n /dev/ttyUSB0)
+    
+To create udev rules create /etc/udev/rules.d/55-pl2303.rules
+with the following content:
+
+    ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", KERNELS=="1-1.3", SYMLINK+="pl2303_0", MODE="0666"
+    ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", KERNELS=="1-1.4", SYMLINK+="pl2303_1", MODE="0666"
+
+In this example we set usb devices with VID=0x067b and PID=0x2303 on hub ports 3 and 4 to /dev/pl2303_0 and /pl2303_1
+
+Also /etc/udev/rules.d/56-cp2102.rules
+
+    ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", KERNELS=="1-1.5", SYMLINK+="cp2102_0", MODE="0666"
 
 ##TODO
 * update readme
