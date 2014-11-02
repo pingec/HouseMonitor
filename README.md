@@ -60,7 +60,7 @@ Example output:
         { addr: '289F50CE040000AC', temp: '39.12' } ]
 
 
-###Live Data To File Exporter
+###Live Data To File Exporter ![Progress](http://progressed.io/bar/90)
  **If this module is used, make sure it is writing to a folder in RAM disk due to relatively high number of writes!**
 
 Outputs last acquired data to certain files in order so that other programs can use it. For example this can be used to display acquired data on a display through lcd4linux.
