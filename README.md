@@ -69,18 +69,18 @@ Outputs last acquired data to certain files in order so that other programs can 
 
 1. To enable it, prepare a folder that is mounted to ram. For example create /var/hm and add this line to /etc/fstab : 
 
-    tmpfs           /var/hm         tmpfs   defaults,noatime,mode=1777,size=1M      0    0
+        tmpfs           /var/hm         tmpfs   defaults,noatime,mode=1777,size=1M      0    0
 
 2. Configure the LiveDataToFileExporter section in config.js
 
-    config.liveDataToFileExporter.logsFolder = "/var/hm";
-    config.liveDataToFileExporter.temperatureFile = "temps.txt"; 
-    config.liveDataToFileExporter.powerFile = "power.txt";
-    config.liveDataToFileExporter.flowDataFile = "temps.txt";
+        config.liveDataToFileExporter.logsFolder = "/var/hm";
+        config.liveDataToFileExporter.temperatureFile = "temps.txt"; 
+        config.liveDataToFileExporter.powerFile = "power.txt";
+        config.liveDataToFileExporter.flowDataFile = "temps.txt";
     
 3. add the following line to main.js
 
-    require('./loggers/liveDataToFileExporter.js');
+        require('./loggers/liveDataToFileExporter.js');
 
 
 ###Log downsampler ![Progress](http://progressed.io/bar/80)  
