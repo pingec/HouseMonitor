@@ -23,7 +23,10 @@ and detach with
 
     CTRL+A+D
 
-
+Also due to some memory leak in node.js it is recommended to restart HouseMonitor weekly. For example a root cron job  (sudo crontab -e) like this would work:
+    
+    0 0 * * 2,5 screen -S housemonitor -X stuff $'\003'; screen -S housemonitor -X stuff "cd /home/pi/HouseMonitor; /opt/node/bin/node /home/pi/HouseMonitor/main.js\n"
+This will restart housemonitor every Tuesday and Friday.
 
 
 When socket.io is installed, copy  ~/HouseMonitor/node_modules/socket.io/node_modules/socket.io-client/socket.io.js to dashboard/public/socket.io.js (FIXME)
@@ -136,6 +139,9 @@ In this example we set usb devices with VID=0x067b and PID=0x2303 on hub ports 3
 Also /etc/udev/rules.d/56-cp2102.rules
 
     ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", KERNELS=="1-1.5", SYMLINK+="cp2102_0", MODE="0666"
+    
+####PCB v0.3 potential improvements
+* Solder bridges for common neutral line on transformers.
 
 ##TODO
 * update readme
@@ -145,3 +151,23 @@ Also /etc/udev/rules.d/56-cp2102.rules
 * move libs/* to node_modules/
 * in tempLogger.js use MEDIAN instead of AVG to mitigate erroneous outliers
 * Add in config filtering thresholds for power and temperatures to use to filter out bad data
+
+##Investigate crash
+```
+child_process.js:935
+    throw errnoException(process._errno, 'spawn');
+          ^
+Error: spawn ENOMEM
+    at errnoException (child_process.js:988:11)
+    at ChildProcess.spawn (child_process.js:935:11)
+    at exports.spawn (child_process.js:723:9)
+    at Object.exports.execFile (child_process.js:607:15)
+    at exports.exec (child_process.js:578:18)
+    at queryTemp (/home/pi/HouseMonitor/libs/tempMonitor.js:46:5)
+    at doQueryTemp (/home/pi/HouseMonitor/libs/tempMonitor.js:35:5)
+    at null.<anonymous> (/home/pi/HouseMonitor/libs/tempMonitor.js:93:17)
+    at wrapper [as _onTimeout] (timers.js:252:14)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
+
+```
+Could be a memory leak and r.pi running out of memory?
