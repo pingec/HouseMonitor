@@ -4,10 +4,10 @@
 
 var config = require('../config');
 
-function MainsData(data, timestamp){
+function MainsData(data, timestamp) {
 
     this.timestamp = timestamp || new Date();
-    if(data === null){
+    if (data === null) {
         return this;
     }
 
@@ -16,7 +16,7 @@ function MainsData(data, timestamp){
     this.phase2 = {};
     this.phase3 = {};
     var i = 0;
-    this.phase1.realPower =  parseFloat(values[i++]);
+    this.phase1.realPower = parseFloat(values[i++]);
     this.phase1.apparentPower = parseFloat(values[i++]);
     this.phase1.Vrms = parseFloat(values[i++]);
     this.phase1.Irms = parseFloat(values[i++]);
@@ -33,13 +33,12 @@ function MainsData(data, timestamp){
     this.phase3.powerFactor = parseFloat(values[i++]);
 
     //process acquired values
-    for(var prop in this){
-        if(prop === "timestamp"){
+    for (var prop in this) {
+        if (prop === "timestamp") {
             continue;
-        }
-        else{
-            for(var prop2 in this[prop]){
-                if(isNaN(this[prop][prop2]) || !isFinite(this[prop][prop2])){		//prevent NaN's and Inf's (will iterate over this.timestamp as well, but should leave it untouched)
+        } else {
+            for (var prop2 in this[prop]) {
+                if (isNaN(this[prop][prop2]) || !isFinite(this[prop][prop2])) { //prevent NaN's and Inf's (will iterate over this.timestamp as well, but should leave it untouched)
                     console.log("fixing", this[prop][prop2]);
                     this[prop][prop2] = 0;
                 }
@@ -48,9 +47,9 @@ function MainsData(data, timestamp){
     }
 }
 
-MainsData.prototype.serialize = function(){
+MainsData.prototype.serialize = function() {
 
-    if(!this.phase1){
+    if (!this.phase1) {
         return "null";
     }
 
@@ -71,7 +70,7 @@ MainsData.prototype.serialize = function(){
         this.phase3.powerFactor;
 };
 
-MainsData.prototype.toFixed = function(n){
+MainsData.prototype.toFixed = function(n) {
     this.phase1.realPower = parseFloat(this.phase1.realPower.toFixed(n));
     this.phase1.apparentPower = parseFloat(this.phase1.apparentPower.toFixed(n));
     this.phase1.Vrms = parseFloat(this.phase1.Vrms.toFixed(n));
@@ -89,73 +88,73 @@ MainsData.prototype.toFixed = function(n){
     this.phase3.powerFactor = parseFloat(this.phase3.powerFactor.toFixed(n));
 };
 
-MainsData.prototype.validate = function(aPThreshold, rPThreshold, vLowerThreshold, vUpperThreshold){
-// should be called before .toFixed()
+MainsData.prototype.validate = function(aPThreshold, rPThreshold, vLowerThreshold, vUpperThreshold) {
+    // should be called before .toFixed()
 
     var valid = true;
     var err = "";
 
-    if(aPThreshold){
-        if(this.phase1.apparentPower > aPThreshold){
+    if (aPThreshold) {
+        if (this.phase1.apparentPower > aPThreshold) {
             valid = false;
-            err = "phase1.apparentPower too high!";
+            err = "phase1.apparentPower too high! " + this.phase1.apparentPower + " > " + aPThreshold + " ";
         }
-        if(this.phase2.apparentPower > aPThreshold){
+        if (this.phase2.apparentPower > aPThreshold) {
             valid = false;
-            err = "phase2.apparentPower too high!";
+            err = "phase2.apparentPower too high! " + this.phase2.apparentPower + " > " + aPThreshold + " ";
         }
-        if(this.phase3.apparentPower > aPThreshold){
+        if (this.phase3.apparentPower > aPThreshold) {
             valid = false;
-            err = "phase3.apparentPower too high!";
-        }
-    }
-
-    if(rPThreshold){
-        if(this.phase1.realPower > rPThreshold){
-            valid = false;
-            err = "phase1.realPower too high!";
-        }
-        if(this.phase2.realPower > rPThreshold){
-            valid = false;
-            err = "phase2.realPower too high!";
-        }
-        if(this.phase3.realPower > rPThreshold){
-            valid = false;
-            err = "phase3.realPower too high!";
+            err = "phase3.apparentPower too high! " + this.phase3.apparentPower + " > " + aPThreshold + " ";
         }
     }
 
-    if(vLowerThreshold){
-        if(this.phase1.Vrms < vLowerThreshold){
+    if (rPThreshold) {
+        if (this.phase1.realPower > rPThreshold) {
             valid = false;
-            err = "phase1.Vrms too low!";
+            err = "phase1.realPower too high! " + this.phase1.realPower + " > " + rPThreshold + " ";
         }
-        if(this.phase2.Vrms < vLowerThreshold){
+        if (this.phase2.realPower > rPThreshold) {
             valid = false;
-            err = "phase2.Vrms too low!";
+            err = "phase2.realPower too high! " + this.phase2.realPower + " > " + rPThreshold + " ";
         }
-        if(this.phase3.Vrms < vLowerThreshold){
+        if (this.phase3.realPower > rPThreshold) {
             valid = false;
-            err = "phase3.Vrms too low!";
-        }
-    }
-
-    if(vUpperThreshold){
-        if(this.phase1.Vrms > vUpperThreshold){
-            valid = false;
-            err = "phase1.Vrms too high!";
-        }
-        if(this.phase2.Vrms > vUpperThreshold){
-            valid = false;
-            err = "phase2.Vrms too high!";
-        }
-        if(this.phase3.Vrms > vUpperThreshold){
-            valid = false;
-            err = "phase3.Vrms too high!";
+            err = "phase3.realPower too high! " + this.phase3.realPower + " > " + rPThreshold + " ";
         }
     }
 
-    if(err && config.debug){
+    if (vLowerThreshold) {
+        if (this.phase1.Vrms < vLowerThreshold) {
+            valid = false;
+            err = "phase1.Vrms too low! " + this.phase1.Vrms + " < " + vLowerThreshold + " ";
+        }
+        if (this.phase2.Vrms < vLowerThreshold) {
+            valid = false;
+            err = "phase2.Vrms too low! " + this.phase2.Vrms + " < " + vLowerThreshold + " ";
+        }
+        if (this.phase3.Vrms < vLowerThreshold) {
+            valid = false;
+            err = "phase3.Vrms too low! " + this.phase3.Vrms + " < " + vLowerThreshold + " ";
+        }
+    }
+
+    if (vUpperThreshold) {
+        if (this.phase1.Vrms > vUpperThreshold) {
+            valid = false;
+            err = "phase1.Vrms too high! " + this.phase1.Vrms + " > " + vUpperThreshold + " ";
+        }
+        if (this.phase2.Vrms > vUpperThreshold) {
+            valid = false;
+            err = "phase2.Vrms too high! " + this.phase2.Vrms + " > " + vUpperThreshold + " ";
+        }
+        if (this.phase3.Vrms > vUpperThreshold) {
+            valid = false;
+            err = "phase3.Vrms too high! " + this.phase3.Vrms + " > " + vUpperThreshold + " ";
+        }
+    }
+
+    if (err && config.debug) {
         console.log("WARNING, INCORRECT DATA DETECTED:", err, this.timestamp);
     }
 
