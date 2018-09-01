@@ -33,7 +33,7 @@ When socket.io is installed, copy  ~/HouseMonitor/node_modules/socket.io/node_mo
 
 Due to raspberry corrupting file on power loss (even on usb flash storage) I strongly advise setting up an automated log backup process to a remote storage. For example a cron job that commits logs to github.
 
-###Power Monitor ![Progress](http://progressed.io/bar/90)   
+### Power Monitor ![Progress](http://progressed.io/bar/90)   
 describe serial data format and link to arduino .c files
 
     var powerEmitter = require('./libs/powerMonitor.js').powerEmitter;
@@ -46,7 +46,7 @@ Example output:
     
 
 
-###Temperature monitor ![Progress](http://progressed.io/bar/90)  
+### Temperature monitor ![Progress](http://progressed.io/bar/90)  
 relies on digitemp which should be installed on your system, more info in config.js
 
 
@@ -86,19 +86,19 @@ Outputs last acquired data to certain files in order so that other programs can 
         require('./loggers/liveDataToFileExporter.js');
 
 
-###Log downsampler ![Progress](http://progressed.io/bar/80)  
+### Log downsampler ![Progress](http://progressed.io/bar/80)  
 this should be a deamon that runs periodically and downsamples temperature and power data so that they can be used in
 charts
 
-###Dashboard  ![Progress](http://progressed.io/bar/00)  
+### Dashboard  ![Progress](http://progressed.io/bar/00)  
 The actual web page with charts and other controls
 
 
-###Circuit board v0.2
+### Circuit board v0.2
 ![HouseMonitor v2.0 board](screenshots/IMG_20141025_225854_downsized.jpg) 
 
 
-####Preogramming the arduino bootloader on the onboard atmega328p (tested with an Arduino UNO):
+#### Preogramming the arduino bootloader on the onboard atmega328p (tested with an Arduino UNO):
 
 1. Open "PCB/optiLoader/optiLoader.pde" in Arduino IDE (or get latest from https://github.com/WestfW/OptiLoader) and upload it to the arduino.
 
@@ -109,7 +109,7 @@ The actual web page with charts and other controls
 4.To get confirmation that all is well open the Arduino IDE Serial Monitor (at 19,200 Baud). This will auto-reset the Arduino and burn the ATmega328 again. Check logs for details.
 5. Test the AtMega328p by connecting it to a FTDI/cp2102/pl2303 adapter (VCC,GND,TX,RX,DTR). Inside the IDE, choose the correct COM port, board should be set to "Arduino Mini w/ AtMega328" and upload the blink sketch. Green leed should start blinking.
 
-####Voltage sensing calibration
+#### Voltage sensing calibration
 
 http://openenergymonitor.org/emon/buildingblocks/ct-and-ac-power-adaptor-installation-and-calibration-theory
 
@@ -119,9 +119,9 @@ http://openenergymonitor.org/emon/buildingblocks/ct-and-ac-power-adaptor-install
 
 In practice, just measure mains voltage with a voltmeter and keep adjusting the voltage constant until the calculated output matches the voltmeter.
 
-####Current sensing calibration
+#### Current sensing calibration
 
-###Static usb device names with udev
+### Static usb device names with udev
 Sometimes udev appears to assign names to usb device in an apparently undeterministic way. For example if there are two pl2303 ttl to usb adapters plugged in via a hub, sometimes the first will be named /dev/ttyUSB0 and the second /dev/ttyUSB1 but sometimes it will be the other way around. To avoid such problems, we can assign static names depending on device VID,PID,port on hub etc.
 
 To query for usb information about a device (eg. /dev/ttyUSB0), use:
@@ -140,10 +140,10 @@ Also /etc/udev/rules.d/56-cp2102.rules
 
     ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", KERNELS=="1-1.5", SYMLINK+="cp2102_0", MODE="0666"
     
-####PCB v0.3 potential improvements
+#### PCB v0.3 potential improvements
 * Solder bridges for common neutral line on transformers.
 
-##TODO
+## TODO
 * update readme
 * provide screenshots
 * add tests
@@ -152,7 +152,7 @@ Also /etc/udev/rules.d/56-cp2102.rules
 * in tempLogger.js use MEDIAN instead of AVG to mitigate erroneous outliers
 * Add in config filtering thresholds for power and temperatures to use to filter out bad data
 
-##Investigate crash
+## Investigate crash
 ```
 child_process.js:935
     throw errnoException(process._errno, 'spawn');
